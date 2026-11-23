@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src {{cspSource}}; script-src 'nonce-{{numOnce}}'">
+    <style>
+    body { padding: 10px; font-family: var(--vscode-font-family); }
+    button { 
+        background: var(--vscode-button-background); 
+        color: var(--vscode-button-foreground); 
+        border: none; padding: 8px 12px; cursor: pointer; 
+    }
+    button:hover { background: var(--vscode-button-hoverBackground); }
+    </style>
+</head>
+<body>
+
+    <h2>Saved Requests</h2>
+    <section id="collections"></section>
+
+    <button id="action-btn">Clear</button>
+    <script nonce="{{numOnce}}" src="{{scriptUri}}"></script>
+    
+</body>
+</html>

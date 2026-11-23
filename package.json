@@ -1,0 +1,67 @@
+{
+  "name": "jess",
+  "displayName": "jess",
+  "description": "make api requests",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.146.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "jess.openWindow",
+        "title": "Jess: Make new request"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "jess-requests",
+          "title": "Saved Requests",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "jess-requests": [
+        {
+          "type": "webview",
+          "icon": "media/icon.png",
+          "name": "Saved Requests",
+          "id": "jess-saved-requests"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "watch:srsidebar": "esbuild src/saved-requests/saved-requests-sidebar.ts --bundle --outfile=src/saved-requests/saved-requests-sidebar.js --target=es2020 --watch",
+    "watch:nr": "esbuild src/new-requests/new-request.ts --bundle --outfile=src/new-requests/new-request.js --target=es2020 --watch"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "@types/vscode": "^1.146.0",
+    "@types/vscode-webview": "^1.57.5",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.5.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  }
+}

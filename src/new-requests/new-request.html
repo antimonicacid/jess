@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy"
+            content="default-src 'none'; style-src {{cspSource}}; script-src 'nonce-{{numOnce}}'; connect-src https: http:;">
+        <title>New Request Form</title>
+        <link rel="stylesheet" href="{{styleUri}}">
+        </head>
+        <body>
+            <h2>HTTP Request</h2>
+            <form id="requestForm">
+                <div class="method-group">
+                    <input type="radio" id="get" name="type" value="get" checked>
+                    <label for="get">GET</label>
+                    <input type="radio" id="post" name="type" value="post">
+                    <label for="post">POST</label>
+                    <input type="radio" id="put" name="type" value="put">
+                    <label for="put">PUT</label>
+                    <input type="radio" id="delete" name="type" value="delete">
+                    <label for="delete">DELETE</label>
+                </div>
+ 
+                <div class="field">
+                    <label for="url">URL</label>
+                    <textarea id="url" rows="1" required></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="token">Token</label>
+                    <textarea id="token" rows="1"></textarea>
+                </div>
+				
+                <div class="field">
+                    <label for="data">JSON Body</label>
+                    <textarea id="data" rows="6"></textarea>
+                </div>
+ 
+                <button type="submit">Send Request</button>
+            </form>
+
+            <br>
+
+            <form id="saveRequest">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <textarea id="name" rows="1" required></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="collection">Collection</label>
+                    <textarea id="collection" rows="1"></textarea>
+                </div>
+
+                <button type="submit">Save Request</button>
+            </form>
+            <script nonce="{{numOnce}}" src="{{scriptUri}}"></script>
+        </body>
+</html>
