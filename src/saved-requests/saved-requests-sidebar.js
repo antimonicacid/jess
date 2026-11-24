@@ -76,8 +76,7 @@
       const newCollection = document.createElement("ul");
       const newCollectionText = document.createTextNode(collection.name);
       const newCollectionClearButton = document.createElement("button");
-      const ncbText = document.createTextNode("Delete collection");
-      newCollectionClearButton.appendChild(ncbText);
+      newCollectionClearButton.innerHTML = "Delete Collection";
       newCollectionClearButton.addEventListener("click", (e2) => {
         console.log("they done pressed me");
         vscode.postMessage({
@@ -90,14 +89,23 @@
       collection.requests.forEach((req, name) => {
         const newRequest = document.createElement("li");
         newRequest.innerHTML = name;
+        const newRequestDeleteButton = document.createElement("button");
+        newRequestDeleteButton.innerHTML = "Delete";
+        newRequestDeleteButton.addEventListener("click", (e2) => {
+          vscode.postMessage({
+            command: "deleteRequest",
+            request: req.name,
+            collection: collection.name
+          });
+        });
         newRequest.addEventListener("click", (e2) => {
-          console.log("hey");
           vscode.postMessage({
             command: "loadRequest",
             request: req
           });
         });
         newCollection.appendChild(newRequest);
+        newCollection.appendChild(newRequestDeleteButton);
       });
       collections?.append(newCollectionText);
       collections?.append(newCollection);

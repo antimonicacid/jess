@@ -63,17 +63,21 @@ export class SavedRequests implements vscode.WebviewViewProvider {
             let collections = SavedCollections.fromJSON(this.eContext.globalState.get("jessSavedCollections")!);
             switch (message.command) {
                 //when the js file has loaded, render collections
-                case "ready":
+                case "ready": {
                     webviewView.webview.postMessage({
                         "command": "renderCollections",
                         "data": collections
                     });
+                    break;
+                }
 
-                case "loadRequest":
+                case "loadRequest": {
                     console.log(message);
                     NewRequest.show(this._extensionUri, this.eContext, message.request);
+                    break;
+                }
 
-                case "deleteCollection":
+                case "deleteCollection": {
                     const index = SavedCollections.indexOf(collections, message.collection);
                     if (index === -1) { return; }
 
@@ -84,6 +88,24 @@ export class SavedRequests implements vscode.WebviewViewProvider {
                         "command": "renderCollections",
                         "data": collections
                     });
+                    break;
+                }
+
+
+                case "deleteRequest": {
+                    console.log(collections, message.collection);
+                    const index = SavedCollections.indexOf(collections, message.collection);
+                    console.log(index);
+                    collections[index].deleteRequest(message.request);
+                    await this.eContext.globalState.update("jessSavedCollections", collections);
+
+                    webviewView.webview.postMessage({
+                        "command": "renderCollections",
+                        "data": collections
+                    });
+                    break;                    
+                }
+
             }
 
         });
