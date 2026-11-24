@@ -24,7 +24,21 @@ window.addEventListener("message", (e) => {
     for (const collection of data) {
         const newCollection = document.createElement("ul");
         const newCollectionText = document.createTextNode(collection.name);
+
+        const newCollectionClearButton = document.createElement("button");
+        const ncbText = document.createTextNode("Delete collection");
+        newCollectionClearButton.appendChild(ncbText);
+
+        newCollectionClearButton.addEventListener("click", (e) => {
+            console.log("they done pressed me");
+            vscode.postMessage({
+                "command": "deleteCollection",
+                "collection": collection.name
+            });
+        });
+
         newCollection.appendChild(newCollectionText);
+        newCollection.appendChild(newCollectionClearButton);
 
         collection.requests.forEach((req, name) => {
             const newRequest = document.createElement("li");

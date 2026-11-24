@@ -23,14 +23,16 @@ export class SavedRequests implements vscode.WebviewViewProvider {
     ) => {
 
         this.eContext.subscriptions.push(vscode.commands.registerCommand("jess.refreshCollections", () => {
-            console.log("im up refreshing my collections");
             const collections = SavedCollections.fromJSON(this.eContext.globalState.get("jessSavedCollections")!);
             webviewView.webview.postMessage({ "command": "renderCollections", "data": collections });
         }));
 
         webviewView.webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.joinPath(this._extensionUri, "src", "saved-requests")]
+            localResourceRoots: [
+                vscode.Uri.joinPath(this._extensionUri, "src", "saved-requests"),
+                vscode.Uri.joinPath(this._extensionUri, "media")
+            ]
         };
 
         const scriptUri = webviewView.webview.asWebviewUri(
@@ -44,29 +46,44 @@ export class SavedRequests implements vscode.WebviewViewProvider {
             let html = new TextDecoder("utf-8").decode(bytes);
     
             const numOnce = NumberUsedOnce.generate();
+            const deleteIconSource = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "delete.png"));
 
             html = html
                 .replace(/{{scriptUri}}/g, scriptUri.toString())
                 .replace(/{{cspSource}/g, webviewView.webview.cspSource)
-                .replace(/{{numOnce}}/g, numOnce);
+                .replace(/{{numOnce}}/g, numOnce)
+                .replace(/{{deleteIconSource}}/g, deleteIconSource.toString());
 
             webviewView.webview.html = html;
         };
 
         setHtmlContent();
 
-        webviewView.webview.onDidReceiveMessage(message => {
+        webviewView.webview.onDidReceiveMessage(async (message) => {
+            let collections = SavedCollections.fromJSON(this.eContext.globalState.get("jessSavedCollections")!);
             switch (message.command) {
                 //when the js file has loaded, render collections
                 case "ready":
-                    const collections = SavedCollections.fromJSON(this.eContext.globalState.get("jessSavedCollections")!);
                     webviewView.webview.postMessage({
                         "command": "renderCollections",
                         "data": collections
                     });
+
                 case "loadRequest":
                     console.log(message);
                     NewRequest.show(this._extensionUri, this.eContext, message.request);
+
+                case "deleteCollection":
+                    const index = SavedCollections.indexOf(collections, message.collection);
+                    if (index === -1) { return; }
+
+                    collections.splice(index, 1);
+                    await this.eContext.globalState.update("jessSavedCollections", collections);
+                    
+                    webviewView.webview.postMessage({
+                        "command": "renderCollections",
+                        "data": collections
+                    });
             }
 
         });
