@@ -39,7 +39,7 @@ window.addEventListener("message", (e) => {
     newUrl.value = reqToLoad.url ?? "";
     reqName.value = reqToLoad.name ?? "";
 
-    newToken.value = reqToLoad.token ?? "X";
+    newToken.value = reqToLoad.token ?? "";
 
     const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
     const rb = document.getElementById(reqType) as HTMLInputElement;
