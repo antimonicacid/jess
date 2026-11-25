@@ -12,6 +12,7 @@ export class HTTPRequest {
     url: string;
     name: string;
     token: string | undefined;
+    cookies: Array<String> | undefined;
 
     constructor (name: string, info: HTTPRequestInfo) {
         this.request = {};
@@ -30,8 +31,8 @@ export class HTTPRequest {
         this.request.method = info.type;
     }
 
-    public async send(): Promise<Response> {
-        return await fetch(this.url, this.request);
+    public async send() {
+
     }
 
 }

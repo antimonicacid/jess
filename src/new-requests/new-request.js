@@ -11,6 +11,7 @@
       __publicField(this, "url");
       __publicField(this, "name");
       __publicField(this, "token");
+      __publicField(this, "cookies");
       this.request = {};
       this.request.headers = {
         "Content-Type": "application/json"
@@ -31,7 +32,6 @@
       this.request.method = info.type;
     }
     async send() {
-      return await fetch(this.url, this.request);
     }
   };
 
@@ -39,38 +39,52 @@
   var vscode = acquireVsCodeApi();
   var requestForm = document.getElementById("requestForm");
   var saveRequest = document.getElementById("saveRequest");
-  var formData = new FormData(requestForm);
   var newData = document.getElementById("data");
   var newUrl = document.getElementById("url");
   var newToken = document.getElementById("token");
-  var newRequestType = formData.get("type")?.toString();
   var reqName = document.getElementById("name");
   var collectionName = document.getElementById("collection");
+  var result = document.getElementById("result");
   requestForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const request = createRequest();
-    const response = await request.send();
-    console.log(response);
+    vscode.postMessage({
+      "command": "sendRequest",
+      "url": newUrl.value,
+      "request": request
+    });
   });
   saveRequest.addEventListener("submit", (e) => {
     e.preventDefault();
     addRequestToCollection();
   });
-  window.addEventListener("message", (e) => {
+  window.addEventListener("message", async (e) => {
     const message = e.data;
-    if (message.command !== "loadRequestData") {
-      return;
+    switch (message.command) {
+      case "loadRequestData": {
+        const reqToLoad = message.request;
+        console.log("LOADING");
+        console.log(reqToLoad);
+        newData.value = reqToLoad.request?.body ?? "";
+        newUrl.value = reqToLoad.url ?? "";
+        reqName.value = reqToLoad.name ?? "";
+        newToken.value = reqToLoad.token ?? "";
+        const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
+        const rb = document.getElementById(reqType);
+        rb.checked = true;
+        break;
+      }
+      case "updateResponseDiv": {
+        console.log("yo");
+        console.log(message);
+        console.log(message.response);
+        if (!result) {
+          return;
+        }
+        result.innerHTML = `${message.status} ${message.statusText} 
+${JSON.stringify(message.json)}`;
+      }
     }
-    const reqToLoad = message.request;
-    console.log("LOADING");
-    console.log(reqToLoad);
-    newData.value = reqToLoad.request?.body ?? "";
-    newUrl.value = reqToLoad.url ?? "";
-    reqName.value = reqToLoad.name ?? "";
-    newToken.value = reqToLoad.token ?? "X";
-    const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
-    const rb = document.getElementById(reqType);
-    rb.checked = true;
   });
   var addRequestToCollection = () => {
     const request = createRequest();
@@ -81,6 +95,10 @@
     });
   };
   var createRequest = () => {
+    const formData = new FormData(requestForm);
+    const newRequestType = formData.get("type")?.toString();
+    console.log("creating request");
+    console.log(newRequestType);
     const info = {
       type: newRequestType,
       url: newUrl.value,

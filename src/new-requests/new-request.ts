@@ -5,21 +5,25 @@ import { HTTPRequest, HTTPRequestInfo } from '../Request';
 const requestForm = document.getElementById("requestForm");
 const saveRequest = document.getElementById("saveRequest");
 
-
-const formData = new FormData(requestForm as HTMLFormElement);
 const newData = (document.getElementById('data') as HTMLFormElement);
 const newUrl = (document.getElementById('url') as HTMLFormElement);
 const newToken = (document.getElementById('token') as HTMLFormElement);
-const newRequestType = formData.get('type')?.toString();
 const reqName = (document.getElementById('name') as HTMLFormElement);
 const collectionName = (document.getElementById('collection') as HTMLFormElement);
+
+const result = document.getElementById('result');
 
 requestForm!.addEventListener("submit", async (e) => {
     e.preventDefault();
     const request: HTTPRequest = createRequest();
 
-    const response = await request.send();
-    console.log(response);
+    vscode.postMessage({
+        "command": "sendRequest",
+        "url": newUrl.value,
+        "request": request
+    });
+
+    
 });
 
 saveRequest!.addEventListener("submit", (e) => {
@@ -27,23 +31,36 @@ saveRequest!.addEventListener("submit", (e) => {
     addRequestToCollection();
 });
 
-window.addEventListener("message", (e) => {
+window.addEventListener("message", async (e) => {
     const message = e.data;
-    if (message.command !== "loadRequestData") { return; }
-    const reqToLoad: HTTPRequest = message.request;
+    switch (message.command) {
+        case "loadRequestData": {
+            const reqToLoad: HTTPRequest = message.request;
 
-    console.log("LOADING");
-    console.log(reqToLoad);
+            console.log("LOADING");
+            console.log(reqToLoad);
 
-    newData.value = reqToLoad.request?.body ?? "";
-    newUrl.value = reqToLoad.url ?? "";
-    reqName.value = reqToLoad.name ?? "";
+            newData.value = reqToLoad.request?.body ?? "";
+            newUrl.value = reqToLoad.url ?? "";
+            reqName.value = reqToLoad.name ?? "";
 
-    newToken.value = reqToLoad.token ?? "";
+            newToken.value = reqToLoad.token ?? "";
 
-    const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
-    const rb = document.getElementById(reqType) as HTMLInputElement;
-    rb.checked = true;
+            const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
+            const rb = document.getElementById(reqType) as HTMLInputElement;
+            rb.checked = true;
+            break;
+        }
+        case "updateResponseDiv": {
+            console.log("yo");
+            console.log(message);
+            console.log(message.response);
+            //message.status, message.statuasText, message.json (for now)
+            if (!result) { return; }
+            result.innerHTML = `${message.status} ${message.statusText} \n${JSON.stringify(message.json)}`;
+        }
+    }
+
 });
 
 
@@ -57,6 +74,10 @@ const addRequestToCollection = () => {
 };
 
 const createRequest = () => {
+    const formData = new FormData(requestForm as HTMLFormElement);
+    const newRequestType = formData.get('type')?.toString(); // always returns 'get'
+    console.log("creating request");
+    console.log(newRequestType);
     const info: HTTPRequestInfo = {
         type: newRequestType!,
         url: newUrl.value,

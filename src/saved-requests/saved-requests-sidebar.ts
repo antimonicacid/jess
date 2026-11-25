@@ -22,14 +22,15 @@ window.addEventListener("message", (e) => {
     const data = SavedCollections.fromJSON(message.data);
 
     for (const collection of data) {
-        const newCollection = document.createElement("ul");
-        const newCollectionText = document.createTextNode(collection.name);
+        const newCollection = document.createElement("details");
+        const newCollectionText = document.createElement("summary");
+        newCollectionText.innerHTML = collection.name;
+        newCollection.open = true;
 
         const newCollectionClearButton = document.createElement("button");
         newCollectionClearButton.innerHTML = "Delete Collection";
 
         newCollectionClearButton.addEventListener("click", (e) => {
-            console.log("they done pressed me");
             vscode.postMessage({
                 "command": "deleteCollection",
                 "collection": collection.name
@@ -40,7 +41,7 @@ window.addEventListener("message", (e) => {
         newCollection.appendChild(newCollectionClearButton);
 
         collection.requests.forEach((req, name) => {
-            const newRequest = document.createElement("li");
+            const newRequest = document.createElement("p");
             newRequest.innerHTML = name;
 
             const newRequestDeleteButton = document.createElement("button");
@@ -65,7 +66,6 @@ window.addEventListener("message", (e) => {
             newCollection.appendChild(newRequestDeleteButton);
         });
 
-        collections?.append(newCollectionText);
         collections?.append(newCollection);
     }
 
