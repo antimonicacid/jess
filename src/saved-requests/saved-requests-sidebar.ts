@@ -41,7 +41,7 @@ window.addEventListener("message", (e) => {
         newCollection.appendChild(newCollectionClearButton);
 
         newCollectionClearButton.textContent = "Delete Collection";
-        newCollectionClearButton.className = "secondary";   
+        newCollectionClearButton.className = "danger";   
 
         collection.requests.forEach((req, name) => {
             const row = document.createElement("div");
@@ -57,10 +57,10 @@ window.addEventListener("message", (e) => {
                 });
             });
 
-            const deleteBtn = document.createElement("button");
-            deleteBtn.className = "link";
-            deleteBtn.textContent = "Delete";
-            deleteBtn.addEventListener("click", () => {
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "link";
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", () => {
                 vscode.postMessage({
                     command: "deleteRequest",
                     request: req.name,
@@ -68,7 +68,7 @@ window.addEventListener("message", (e) => {
                 });
             });
 
-            row.append(nameEl, deleteBtn);
+            row.append(nameEl, deleteButton);
             newCollection.appendChild(row);
         });
 

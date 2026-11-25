@@ -88,7 +88,7 @@
       newCollection.appendChild(newCollectionText);
       newCollection.appendChild(newCollectionClearButton);
       newCollectionClearButton.textContent = "Delete Collection";
-      newCollectionClearButton.className = "secondary";
+      newCollectionClearButton.className = "danger";
       collection.requests.forEach((req, name) => {
         const row = document.createElement("div");
         row.className = "request";
@@ -101,17 +101,17 @@
             request: req
           });
         });
-        const deleteBtn = document.createElement("button");
-        deleteBtn.className = "link";
-        deleteBtn.textContent = "Delete";
-        deleteBtn.addEventListener("click", () => {
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "link";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
           vscode.postMessage({
             command: "deleteRequest",
             request: req.name,
             collection: collection.name
           });
         });
-        row.append(nameEl, deleteBtn);
+        row.append(nameEl, deleteButton);
         newCollection.appendChild(row);
       });
       collections?.append(newCollection);
