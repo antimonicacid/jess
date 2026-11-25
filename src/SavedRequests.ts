@@ -39,6 +39,10 @@ export class SavedRequests implements vscode.WebviewViewProvider {
             vscode.Uri.joinPath(this._extensionUri, "src", "saved-requests", "saved-requests-sidebar.js")
         );
 
+        const styleUri = webviewView.webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, "src", "saved-requests", "style.css")
+        );
+
         const setHtmlContent = async (): Promise<void> => {       
             //fetch html file     
             const htmlUri: vscode.Uri = vscode.Uri.joinPath(this._extensionUri, "src", "saved-requests", "saved-requests.html");
@@ -50,10 +54,11 @@ export class SavedRequests implements vscode.WebviewViewProvider {
 
             html = html
                 .replace(/{{scriptUri}}/g, scriptUri.toString())
-                .replace(/{{cspSource}/g, webviewView.webview.cspSource)
+                .replace(/{{cspSource}}/g, webviewView.webview.cspSource)
                 .replace(/{{numOnce}}/g, numOnce)
-                .replace(/{{deleteIconSource}}/g, deleteIconSource.toString());
+                .replace(/{{styleUri}}/g, styleUri.toString());
 
+            console.log(html.match(/<meta http-equiv="Content-Security-Policy"[^>]*>/s)?.[0]);
             webviewView.webview.html = html;
         };
 

@@ -87,26 +87,32 @@
       });
       newCollection.appendChild(newCollectionText);
       newCollection.appendChild(newCollectionClearButton);
+      newCollectionClearButton.textContent = "Delete Collection";
+      newCollectionClearButton.className = "secondary";
       collection.requests.forEach((req, name) => {
-        const newRequest = document.createElement("p");
-        newRequest.innerHTML = name;
-        const newRequestDeleteButton = document.createElement("button");
-        newRequestDeleteButton.innerHTML = "Delete";
-        newRequestDeleteButton.addEventListener("click", (e2) => {
+        const row = document.createElement("div");
+        row.className = "request";
+        const nameEl = document.createElement("span");
+        nameEl.className = "request-name";
+        nameEl.textContent = name;
+        nameEl.addEventListener("click", () => {
+          vscode.postMessage({
+            command: "loadRequest",
+            request: req
+          });
+        });
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "link";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => {
           vscode.postMessage({
             command: "deleteRequest",
             request: req.name,
             collection: collection.name
           });
         });
-        newRequest.addEventListener("click", (e2) => {
-          vscode.postMessage({
-            command: "loadRequest",
-            request: req
-          });
-        });
-        newCollection.appendChild(newRequest);
-        newCollection.appendChild(newRequestDeleteButton);
+        row.append(nameEl, deleteBtn);
+        newCollection.appendChild(row);
       });
       collections?.append(newCollection);
     }
