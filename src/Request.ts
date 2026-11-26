@@ -20,7 +20,7 @@ export class HTTPRequest {
             'Content-Type': 'application/json'
         };
         this.request.credentials = 'same-origin';
-        if (info.type.toLowerCase() !== "get") { this.request.body = info.data; }
+        this.request.body = info.data;
         if (info.token) {
             this.token = info.token; 
             this.request.headers.Authorization = `Bearer ${info.token}`; 
@@ -29,10 +29,15 @@ export class HTTPRequest {
         this.url = info.url;
         this.name = name;
         this.request.method = info.type;
-    }
+    } 
 
     public async send() {
 
+    }
+
+    public setCookies(response: Response) {
+        const cookies = response.headers.getSetCookie();
+        this.cookies = cookies;
     }
 
 }

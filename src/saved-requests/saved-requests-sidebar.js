@@ -98,7 +98,8 @@
         nameEl.addEventListener("click", () => {
           vscode.postMessage({
             command: "loadRequest",
-            request: req
+            request: req,
+            collection: collection.name
           });
         });
         const deleteButton = document.createElement("button");

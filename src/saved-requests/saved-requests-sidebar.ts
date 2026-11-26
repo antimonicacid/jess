@@ -53,7 +53,8 @@ window.addEventListener("message", (e) => {
             nameEl.addEventListener("click", () => {
                 vscode.postMessage({ 
                     command: "loadRequest", 
-                    request: req 
+                    request: req,
+                    collection: collection.name
                 });
             });
 

@@ -17,9 +17,7 @@
         "Content-Type": "application/json"
       };
       this.request.credentials = "same-origin";
-      if (info.type.toLowerCase() !== "get") {
-        this.request.body = info.data;
-      }
+      this.request.body = info.data;
       if (info.token) {
         this.token = info.token;
         this.request.headers.Authorization = `Bearer ${info.token}`;
@@ -32,6 +30,10 @@
       this.request.method = info.type;
     }
     async send() {
+    }
+    setCookies(response) {
+      const cookies = response.headers.getSetCookie();
+      this.cookies = cookies;
     }
   };
 
@@ -63,15 +65,15 @@
     switch (message.command) {
       case "loadRequestData": {
         const reqToLoad = message.request;
+        const formData = new FormData(requestForm);
         console.log("LOADING");
-        console.log(reqToLoad);
+        console.log(message.collection);
         newData.value = reqToLoad.request?.body ?? "";
         newUrl.value = reqToLoad.url ?? "";
         reqName.value = reqToLoad.name ?? "";
         newToken.value = reqToLoad.token ?? "";
-        const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
-        const rb = document.getElementById(reqType);
-        rb.checked = true;
+        collectionName.value = message.collection ?? "";
+        formData.set("type", reqToLoad.request?.method?.toLowerCase() ?? "get");
         break;
       }
       case "updateResponseDiv": {
@@ -98,7 +100,7 @@ ${JSON.stringify(message.json)}`;
     const formData = new FormData(requestForm);
     const newRequestType = formData.get("type")?.toString();
     console.log("creating request");
-    console.log(newRequestType);
+    console.log(newData.value);
     const info = {
       type: newRequestType,
       url: newUrl.value,

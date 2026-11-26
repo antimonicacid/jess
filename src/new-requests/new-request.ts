@@ -36,19 +36,21 @@ window.addEventListener("message", async (e) => {
     switch (message.command) {
         case "loadRequestData": {
             const reqToLoad: HTTPRequest = message.request;
+            const formData = new FormData(requestForm as HTMLFormElement);
 
             console.log("LOADING");
-            console.log(reqToLoad);
+            console.log(message.collection);
 
             newData.value = reqToLoad.request?.body ?? "";
             newUrl.value = reqToLoad.url ?? "";
             reqName.value = reqToLoad.name ?? "";
 
             newToken.value = reqToLoad.token ?? "";
+            
+            collectionName.value = message.collection ?? "";
 
-            const reqType = reqToLoad.request?.method?.toLowerCase() ?? "get";
-            const rb = document.getElementById(reqType) as HTMLInputElement;
-            rb.checked = true;
+            formData.set("type", reqToLoad.request?.method?.toLowerCase() ?? "get");
+
             break;
         }
         case "updateResponseDiv": {
@@ -75,9 +77,9 @@ const addRequestToCollection = () => {
 
 const createRequest = () => {
     const formData = new FormData(requestForm as HTMLFormElement);
-    const newRequestType = formData.get('type')?.toString(); // always returns 'get'
+    const newRequestType = formData.get('type')?.toString(); 
     console.log("creating request");
-    console.log(newRequestType);
+    console.log(newData.value);
     const info: HTTPRequestInfo = {
         type: newRequestType!,
         url: newUrl.value,

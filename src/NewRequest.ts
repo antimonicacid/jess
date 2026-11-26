@@ -42,7 +42,8 @@ export class NewRequest {
                 case "sendRequest": {
                     console.log("im about to send (from newrequest.ts)");
                     console.log(message.request.request);
-                    const response = await fetch(message.url, message.request.request); //wow
+                    const request: HTTPRequest = message.request;
+                    const response = await fetch(message.url, request.request); //wow
                     let json;
                     try {
                         json = await response.json();
@@ -56,6 +57,8 @@ export class NewRequest {
                         "statusText": response.statusText,
                         "json": json ?? ""
                     });
+
+                    message.request.setCookies(response);
                 }
                 
             }
@@ -80,16 +83,19 @@ export class NewRequest {
         return instance;
     }
 
-    public static async showWithRequest(extensionUri: vscode.Uri, context: vscode.ExtensionContext, request: HTTPRequest) {
+    public static async showWithRequest(extensionUri: vscode.Uri, context: vscode.ExtensionContext, request: HTTPRequest, collectionName: string) {
         vscode.commands.executeCommand("jess.openWindow");
         const instance = await this.show(extensionUri, context);
         instance.panel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
                 //when the js file has loaded, render collections
                 case "ready":
+                    console.log("ts is newrequest.ts");
+                    console.log(collectionName);
                     instance.panel.webview.postMessage({
                         "command": "loadRequestData",
-                        "request": request
+                        "request": request,
+                        "collection": collectionName
                     });
             }
         });

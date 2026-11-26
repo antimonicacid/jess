@@ -77,8 +77,9 @@ export class SavedRequests implements vscode.WebviewViewProvider {
                 }
 
                 case "loadRequest": {
-                    console.log(message);
-                    NewRequest.showWithRequest(this._extensionUri, this.eContext, message.request);
+                    console.log("hey guys its me savedrequests.ts");
+                    console.log(message.collection);
+                    NewRequest.showWithRequest(this._extensionUri, this.eContext, message.request, message.collection);
                     break;
                 }
 
