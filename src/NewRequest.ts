@@ -40,17 +40,22 @@ export class NewRequest {
                     break;
                 }
                 case "sendRequest": {
-                    console.log("im about to send (from newrequest.ts)");
-                    console.log(message.request.request);
                     const request: HTTPRequest = message.request;
                     const response = await fetch(message.url, request.request); //wow
+                    
+                    const cookies: Array<string> = response.headers.getSetCookie();
+                    panel.webview.postMessage({
+                        "command": "updateCookies",
+                        "cookies": cookies
+                    });
+
                     let json;
                     try {
                         json = await response.json();
                     } catch (err) {
                         console.log(err);
                     }
-                    console.log(response);
+                    
                     panel.webview.postMessage({
                         "command": "updateResponseDiv",
                         "status": response.status,
@@ -58,7 +63,8 @@ export class NewRequest {
                         "json": json ?? ""
                     });
 
-                    message.request.setCookies(response);
+
+                    
                 }
                 
             }
@@ -90,8 +96,6 @@ export class NewRequest {
             switch (message.command) {
                 //when the js file has loaded, render collections
                 case "ready":
-                    console.log("ts is newrequest.ts");
-                    console.log(collectionName);
                     instance.panel.webview.postMessage({
                         "command": "loadRequestData",
                         "request": request,

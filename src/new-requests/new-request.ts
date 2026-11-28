@@ -13,6 +13,8 @@ const collectionName = (document.getElementById('collection') as HTMLFormElement
 
 const result = document.getElementById('result');
 
+let cookies: Array<string> = [];
+
 requestForm!.addEventListener("submit", async (e) => {
     e.preventDefault();
     const request: HTTPRequest = createRequest();
@@ -38,10 +40,7 @@ window.addEventListener("message", async (e) => {
             const reqToLoad: HTTPRequest = message.request;
             const formData = new FormData(requestForm as HTMLFormElement);
 
-            console.log("LOADING");
-            console.log(message.collection);
-
-            newData.value = reqToLoad.request?.body ?? "";
+            newData.value = reqToLoad.body ?? "";
             newUrl.value = reqToLoad.url ?? "";
             reqName.value = reqToLoad.name ?? "";
 
@@ -54,12 +53,15 @@ window.addEventListener("message", async (e) => {
             break;
         }
         case "updateResponseDiv": {
-            console.log("yo");
-            console.log(message);
-            console.log(message.response);
             //message.status, message.statuasText, message.json (for now)
             if (!result) { return; }
             result.innerHTML = `${message.status} ${message.statusText} \n${JSON.stringify(message.json)}`;
+            break;
+        }
+        case "updateCookies": {
+            message.cookies.forEach((cookie: string) => {
+                cookies.push(cookie);
+            });
         }
     }
 
@@ -78,14 +80,13 @@ const addRequestToCollection = () => {
 const createRequest = () => {
     const formData = new FormData(requestForm as HTMLFormElement);
     const newRequestType = formData.get('type')?.toString(); 
-    console.log("creating request");
-    console.log(newData.value);
+
     const info: HTTPRequestInfo = {
         type: newRequestType!,
         url: newUrl.value,
         data: newData.value ?? undefined,
         token: newToken.value ?? undefined,
-        cookies: undefined
+        cookies: cookies
     };
 
     const request = new HTTPRequest(reqName.value, info);

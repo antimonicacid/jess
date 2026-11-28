@@ -11,29 +11,33 @@
       __publicField(this, "url");
       __publicField(this, "name");
       __publicField(this, "token");
+      __publicField(this, "body");
+      //save body from form anyway, even if it may not be used (e.g. get request)
       __publicField(this, "cookies");
       this.request = {};
       this.request.headers = {
         "Content-Type": "application/json"
       };
       this.request.credentials = "same-origin";
-      this.request.body = info.data;
+      this.body = info.data;
+      if (info.type !== "get") {
+        this.request.body = info.data;
+      }
       if (info.token) {
         this.token = info.token;
         this.request.headers.Authorization = `Bearer ${info.token}`;
       }
-      if (info.cookies) {
-        this.request.headers.cookie = info.cookies;
-      }
       this.url = info.url;
       this.name = name;
       this.request.method = info.type;
-    }
-    async send() {
+      const cookieHeader = info.cookies?.map((c) => c.split(";")[0]).join("; ");
+      if (cookieHeader) {
+        this.request.headers.Cookie = cookieHeader;
+      }
     }
     setCookies(response) {
-      const cookies = response.headers.getSetCookie();
-      this.cookies = cookies;
+      const cookies2 = response.headers.getSetCookie();
+      this.cookies = cookies2;
     }
   };
 
@@ -47,6 +51,7 @@
   var reqName = document.getElementById("name");
   var collectionName = document.getElementById("collection");
   var result = document.getElementById("result");
+  var cookies = [];
   requestForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const request = createRequest();
@@ -66,9 +71,7 @@
       case "loadRequestData": {
         const reqToLoad = message.request;
         const formData = new FormData(requestForm);
-        console.log("LOADING");
-        console.log(message.collection);
-        newData.value = reqToLoad.request?.body ?? "";
+        newData.value = reqToLoad.body ?? "";
         newUrl.value = reqToLoad.url ?? "";
         reqName.value = reqToLoad.name ?? "";
         newToken.value = reqToLoad.token ?? "";
@@ -77,14 +80,17 @@
         break;
       }
       case "updateResponseDiv": {
-        console.log("yo");
-        console.log(message);
-        console.log(message.response);
         if (!result) {
           return;
         }
         result.innerHTML = `${message.status} ${message.statusText} 
 ${JSON.stringify(message.json)}`;
+        break;
+      }
+      case "updateCookies": {
+        message.cookies.forEach((cookie) => {
+          cookies.push(cookie);
+        });
       }
     }
   });
@@ -99,14 +105,12 @@ ${JSON.stringify(message.json)}`;
   var createRequest = () => {
     const formData = new FormData(requestForm);
     const newRequestType = formData.get("type")?.toString();
-    console.log("creating request");
-    console.log(newData.value);
     const info = {
       type: newRequestType,
       url: newUrl.value,
       data: newData.value ?? void 0,
       token: newToken.value ?? void 0,
-      cookies: void 0
+      cookies
     };
     const request = new HTTPRequest(reqName.value, info);
     return request;

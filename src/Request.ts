@@ -3,7 +3,7 @@ export type HTTPRequestInfo = {
     url: string,
     data: string | undefined,
     token: string | undefined,
-    cookies: string | undefined,
+    cookies: Array<string> | undefined,
     auth?: string | undefined
 }
 
@@ -12,7 +12,9 @@ export class HTTPRequest {
     url: string;
     name: string;
     token: string | undefined;
-    cookies: Array<String> | undefined;
+    body: string | undefined; //save body from form anyway, even if it may not be used (e.g. get request)
+    cookies: Array<string> | undefined;
+    
 
     constructor (name: string, info: HTTPRequestInfo) {
         this.request = {};
@@ -20,20 +22,20 @@ export class HTTPRequest {
             'Content-Type': 'application/json'
         };
         this.request.credentials = 'same-origin';
-        this.request.body = info.data;
+        this.body = info.data;
+        if (info.type !== "get") { this.request.body = info.data; }
         if (info.token) {
             this.token = info.token; 
             this.request.headers.Authorization = `Bearer ${info.token}`; 
         }
-        if (info.cookies) { this.request.headers.cookie = info.cookies; }
+        
         this.url = info.url;
         this.name = name;
         this.request.method = info.type;
+
+        const cookieHeader = info.cookies?.map((c) => c.split(";")[0]).join("; ");
+        if (cookieHeader) { this.request.headers.Cookie = cookieHeader; }
     } 
-
-    public async send() {
-
-    }
 
     public setCookies(response: Response) {
         const cookies = response.headers.getSetCookie();
